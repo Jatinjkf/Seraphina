@@ -167,36 +167,6 @@ client.on('guildDelete', async (guild) => {
         console.error('Error tracking guild leave:', error);
     }
 });
-// Rotating status messages
-const statusMessages = [
-    '🎀 Organizing Master\'s ledger~',
-    '📚 Preparing daily reminders~',
-    '✨ Serving devotedly~',
-    '💫 Watching Master\'s progress',
-    '🌸 Tidying the learning chamber~',
-    '💭 Awaiting Master\'s command~',
-    '📖 Reviewing study materials~',
-    '🌟 Supporting your journey~',
-    '💕 At your service, Master~',
-    '🎯 Tracking your progress~',
-];
-
-// Set initial status
-let statusIndex = 0;
-const setRandomStatus = () => {
-    const status = statusMessages[statusIndex];
-    client.user.setPresence({
-        activities: [{ name: status, type: 4 }], // Type 4 = Custom status
-        status: 'online'
-    });
-    statusIndex = (statusIndex + 1) % statusMessages.length;
-};
-
-setRandomStatus();
-
-// Rotate status every 15 minutes
-setInterval(setRandomStatus, 15 * 60 * 1000);
-});
 
 // Handle interactions (slash commands)
 client.on('interactionCreate', async interaction => {
