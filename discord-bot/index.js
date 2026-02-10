@@ -172,6 +172,15 @@ client.on('guildDelete', async (guild) => {
 client.on('interactionCreate', async interaction => {
     // Handle slash commands
     if (interaction.isChatInputCommand()) {
+        // Block commands in DMs
+        if (!interaction.guild) {
+            await interaction.reply({
+                content: '🎀 Oh, Master~ Seraphina can only serve you in a server!\n\n✨ Please use commands in a server where I\'m invited.\n💌 If you need help, just send me a message here~',
+                ephemeral: true
+            });
+            return;
+        }
+
         const command = client.commands.get(interaction.commandName);
 
         if (!command) {

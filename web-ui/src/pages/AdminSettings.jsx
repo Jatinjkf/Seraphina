@@ -229,6 +229,9 @@ function AdminSettings({ onLogout }) {
                         <p className="header-subtitle">Configure your learning companion</p>
                     </div>
                     <div className="header-right">
+                        <a href="/servers" className="nav-button">
+                            🏰 Servers
+                        </a>
                         <a href="/pricing" className="upgrade-button">
                             💎 Upgrade to Pro
                         </a>

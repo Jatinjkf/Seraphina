@@ -13,10 +13,8 @@ function App() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user has token
         const token = localStorage.getItem('adminToken');
         if (token) {
-            // Verify token
             verifyToken(token);
         } else {
             setIsLoading(false);
@@ -69,12 +67,41 @@ function App() {
         <Router>
             <div className="app">
                 <Routes>
+                    {/* Public routes */}
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/success" element={<Success />} />
+
+                    {/* Protected admin routes */}
                     <Route
                         path="/admin"
                         element={
+                            isAuthenticated ? (
+                                <AdminSettings onLogout={handleLogout} />
+                            ) : (
+                                <Navigate to="/login" replace />
+                            )
+                        }
+                    />
+                    <Route
+                        path="/servers"
+                        element={
+                            isAuthenticated ? (
+                                <ServerStats />
+                            ) : (
+                                <Navigate to="/login" replace />
+                            )
+                        }
+                    />
+
+                    {/* Default route */}
+                    <Route
+                        path="/"
+                        element={
+                            isAuthenticated ? (
+                                <Navigate to="/admin" replace />
+                            ) : (
+                                <Navigate to="/login" replace />
                             )
                         }
                     />

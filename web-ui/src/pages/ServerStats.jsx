@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import './ServerStats.css';
 
 function ServerStats() {
@@ -23,7 +24,7 @@ function ServerStats() {
 
     const loadStats = async () => {
         try {
-            const response = await fetch('/api/stats/guilds');
+            const response = await fetch(`${API_URL}/api/stats/guilds`);
             const data = await response.json();
 
             if (data.success) {
@@ -40,7 +41,7 @@ function ServerStats() {
 
     const loadAllGuilds = async (page) => {
         try {
-            const response = await fetch(`/api/stats/guilds/all?page=${page}&limit=20`);
+            const response = await fetch(`${API_URL}/api/stats/guilds/all?page=${page}&limit=20`);
             const data = await response.json();
 
             if (data.success) {
@@ -60,19 +61,22 @@ function ServerStats() {
         <div className="server-stats">
             <div className="stats-header">
                 <h1>🎀 Server Statistics</h1>
-                <div className="view-toggle">
-                    <button
-                        className={view === 'overview' ? 'active' : ''}
-                        onClick={() => setView('overview')}
-                    >
-                        Overview
-                    </button>
-                    <button
-                        className={view === 'all' ? 'active' : ''}
-                        onClick={() => setView('all')}
-                    >
-                        All Servers
-                    </button>
+                <div className="stats-nav">
+                    <a href="/admin" className="back-button">← Back to Admin</a>
+                    <div className="view-toggle">
+                        <button
+                            className={view === 'overview' ? 'active' : ''}
+                            onClick={() => setView('overview')}
+                        >
+                            Overview
+                        </button>
+                        <button
+                            className={view === 'all' ? 'active' : ''}
+                            onClick={() => setView('all')}
+                        >
+                            All Servers
+                        </button>
+                    </div>
                 </div>
             </div>
 

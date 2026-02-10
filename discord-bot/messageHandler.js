@@ -4,7 +4,38 @@ module.exports = (client) => {
         // Ignore bot messages
         if (message.author.bot) return;
 
-        // Check if message has attachments (images)
+        // Handle DMs - send friendly intro message
+        if (!message.guild) {
+            const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
+            const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot%20applications.commands`;
+
+            const row = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setLabel('✨ Invite Seraphina to Your Server')
+                        .setURL(inviteUrl)
+                        .setStyle(ButtonStyle.Link)
+                );
+
+            const dmMessages = [
+                `🎀 **Hello, Master~!** 💕\n\nI'm **Seraphina Lumière**, your devoted learning companion!\n\n✨ I help you master anything using **spaced repetition** — the scientifically-proven memory technique!\n\n📚 **What I can do:**\n• Upload text & images to remember\n• Smart reminders at perfect intervals\n• Track your learning progress\n• Study with a partner!\n\n💌 **To get started:**\n1. Invite me to your server using the button below\n2. Use \`/setup-wizard\` to configure\n3. Start uploading items with \`/upload\`!\n\n*Your devoted maid awaits in the server, Master~* ✨`,
+            ];
+
+            const randomMsg = dmMessages[Math.floor(Math.random() * dmMessages.length)];
+
+            try {
+                await message.reply({
+                    content: randomMsg,
+                    components: [row]
+                });
+            } catch (error) {
+                console.error('Error sending DM reply:', error);
+            }
+            return;
+        }
+
+        // Check if message has attachments (images) - guild only from here
         if (message.attachments.size === 0) return;
 
         const {
