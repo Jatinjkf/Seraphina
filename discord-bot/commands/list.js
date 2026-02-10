@@ -2,10 +2,10 @@ const { SlashCommandBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = re
 const Reminder = require('../models/Reminder');
 const Partnership = require('../models/Partnership');
 const Subscription = require('../models/Subscription');
-const { getAffiliateAd } = require('../utils/affiliateUtils');
-const { getMessage } = require('../utils/messageProvider');
+const { getMessage } = require('../utils/personality');
 const { formatDate } = require('../utils/dateFormatter');
 const { getUserAndPartner } = require('../utils/partnerUtils');
+const { getAffiliateAd } = require('../utils/affiliateUtils');
 const UserPreferences = require('../models/UserPreferences');
 
 const ITEMS_PER_PAGE = 20;
@@ -303,4 +303,3 @@ module.exports = {
         });
     },
 };
-
