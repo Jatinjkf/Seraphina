@@ -1,6 +1,9 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const Reminder = require('../models/Reminder');
-const { getMessage } = require('../utils/personality');
+const Partnership = require('../models/Partnership');
+const Subscription = require('../models/Subscription');
+const { getAffiliateAd } = require('../utils/affiliateUtils');
+const { getMessage } = require('../utils/messageProvider');
 const { formatDate } = require('../utils/dateFormatter');
 const { getUserAndPartner } = require('../utils/partnerUtils');
 const UserPreferences = require('../models/UserPreferences');
@@ -55,7 +58,7 @@ module.exports = {
         let currentPage = 0;
 
         // Function to build menu for a specific page
-        const buildMenu = async (page) => {
+        const buildMenu = (page) => {
             const startIdx = page * ITEMS_PER_PAGE;
             const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, reminderData.length);
             const pageReminders = reminderData.slice(startIdx, endIdx);
@@ -300,4 +303,3 @@ module.exports = {
         });
     },
 };
-
