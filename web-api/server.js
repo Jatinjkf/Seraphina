@@ -63,18 +63,22 @@ const adminRoutes = require('./routes/admin');
 const preferencesRoutes = require('./routes/preferences');
 const remindersRoutes = require('./routes/reminders');
 const archivesRoutes = require('./routes/archives');
-const contactRoutes = require('./routes/contact');
 const statsRoutes = require('./routes/stats');
 const guildStatsRoutes = require('./routes/guildStats');
+const paymentRoutes = require('./routes/payment');
+const subscriptionsRoutes = require('./routes/subscriptions');
+const databaseRoutes = require('./routes/database');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/preferences', preferencesRoutes);
 app.use('/api/reminders', remindersRoutes);
 app.use('/api/archives', archivesRoutes);
-app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/stats', guildStatsRoutes); // Guild statistics
+app.use('/api/payment', paymentRoutes);
+app.use('/api/subscriptions', subscriptionsRoutes);
+app.use('/api/database', databaseRoutes);
 
 
 
