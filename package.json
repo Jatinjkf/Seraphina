@@ -1,0 +1,44 @@
+{
+  "name": "seraphina-lumiere-bot",
+  "version": "1.0.0",
+  "description": "Seraphina Lumière - An elegant Discord learning reminder bot with maid personality",
+  "main": "discord-bot/index.js",
+  "scripts": {
+    "start": "node discord-bot/deploy-commands.js && node discord-bot/index.js & node web-api/server.js",
+    "bot": "node discord-bot/index.js",
+    "dev": "nodemon discord-bot/index.js",
+    "api": "node web-api/server.js",
+    "deploy-commands": "node discord-bot/deploy-commands.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "learning",
+    "reminders",
+    "maid",
+    "education"
+  ],
+  "author": "Jatin",
+  "license": "SEE LICENSE IN LICENSE_PERSONAL.md",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "mongoose": "^8.1.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.4.1",
+    "moment-timezone": "^0.5.45",
+    "@google/generative-ai": "^0.2.0",
+    "bcrypt": "^5.1.1",
+    "express-rate-limit": "^8.2.1",
+    "razorpay": "^2.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

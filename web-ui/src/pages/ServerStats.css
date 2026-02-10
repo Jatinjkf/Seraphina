@@ -1,0 +1,240 @@
+.server-stats {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.stats-header h1 {
+    font-size: 2rem;
+    color: #9333ea;
+    margin: 0;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-toggle button {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e9d5ff;
+    background: white;
+    color: #9333ea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.view-toggle button.active {
+    background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.view-toggle button:hover:not(.active) {
+    background: #faf5ff;
+}
+
+/* Stats Cards */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border: 2px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(147, 51, 234, 0.2);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #9333ea;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Sections */
+.section {
+    background: white;
+    border: 2px solid #e9d5ff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.section h2 {
+    font-size: 1.5rem;
+    color: #9333ea;
+    margin: 0 0 1rem 0;
+}
+
+/* Guild Lists */
+.guild-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.guild-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #faf5ff;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.guild-item:hover {
+    background: #f3e8ff;
+}
+
+.guild-item.top {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+}
+
+.guild-rank {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #9333ea;
+    min-width: 40px;
+}
+
+.guild-info {
+    flex: 1;
+}
+
+.guild-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.guild-meta {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* Table */
+.guild-table {
+    overflow-x: auto;
+}
+
+.guild-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.guild-table th {
+    text-align: left;
+    padding: 0.75rem;
+    background: #faf5ff;
+    color: #9333ea;
+    font-weight: 600;
+    border-bottom: 2px solid #e9d5ff;
+}
+
+.guild-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f3e8ff;
+}
+
+.guild-table tr:hover {
+    background: #faf5ff;
+}
+
+.guild-name-cell {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e9d5ff;
+    background: white;
+    color: #9333ea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #faf5ff;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: #9333ea;
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .guild-table {
+        font-size: 0.9rem;
+    }
+}
