@@ -55,7 +55,7 @@ module.exports = {
         let currentPage = 0;
 
         // Function to build menu for a specific page
-        const buildMenu = (page) => {
+        const buildMenu = async (page) => {
             const startIdx = page * ITEMS_PER_PAGE;
             const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, reminderData.length);
             const pageReminders = reminderData.slice(startIdx, endIdx);
@@ -300,3 +300,4 @@ module.exports = {
         });
     },
 };
+
