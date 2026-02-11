@@ -1,10 +1,27 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 require('dotenv').config(); // Load environment variables
 
 // Initialize Express app
 const app = express();
+
+// Initialize Discord Client for API (for sending DMs, etc.)
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.DirectMessages,
+    ],
+    partials: [Partials.Channel],
+});
+
+client.login(process.env.DISCORD_TOKEN).then(() => {
+    console.log('✓ API Helper Bot Logged In');
+    app.set('discordClient', client);
+}).catch(err => {
+    console.error('⚠ API Bot Login Failed (DMs will not work):', err.message);
+});
 
 // Trust proxy for Koyeb/production deployments
 app.set('trust proxy', 1);

@@ -527,22 +527,22 @@ client.on('messageCreate', async (message) => {
         if (isPro) {
             // Pro user response
             const embed = new EmbedBuilder()
-                .setColor(getRandomColor())
+                .setColor('#FF0055')
                 .setTitle('🎀 Welcome back, Master~')
-                .setDescription(`You are currently enjoying **Pro subscription**!\nThank you for your continued support ✨`)
+                .setDescription(`You are currently enjoying **Seraphina Pro**!\nThank you for your continued support ✨`)
                 .addFields(
                     {
                         name: '💎 Pro Benefits Active',
                         value: '• Unlimited learning items\n• Ad-free experience\n• Priority support\n• Early access to features',
-                        inline: true
+                        inline: false
                     },
                     {
                         name: '⏰ Subscription Status',
                         value: `Active until:\n**${subscription.currentPeriodEnd?.toLocaleDateString() || 'Lifetime'}**`,
-                        inline: true
+                        inline: false
                     }
                 )
-                .setFooter({ text: 'Need help? Use /help or contact support!' });
+                .setFooter({ text: 'Need help? Contact support!' });
 
             const row = new ActionRowBuilder()
                 .addComponents(
@@ -559,40 +559,112 @@ client.on('messageCreate', async (message) => {
             await message.reply({ embeds: [embed], components: [row] });
 
         } else {
-            // Free user response - Introduction
-            const embed = new EmbedBuilder()
-                .setColor(getRandomColor())
-                .setTitle('🎀 Good day, Master~')
-                .setDescription(`I am **Seraphina Lumière**, your devoted maid for spaced learning and memory retention!`)
+            // Free user response - Upgrade Pitch (Multiple Embeds)
+
+            // 1. Main Upgrade Embed
+            const upgradeEmbed = new EmbedBuilder()
+                .setColor('#FF0055')
+                .setTitle('🎀 Upgrade to Seraphina Pro')
+                .setDescription('Thank you for your interest in Pro subscription, Master~\n\n✨ _Let me explain the benefits and terms..._')
                 .addFields(
                     {
-                        name: '✨ How I Help You Learn',
-                        value: '• Upload images to remember anything\n• Smart reminders (6 frequencies)\n• Partner with friends to study together\n• Track your learning progress\n• Archive completed items'
+                        name: '💎 Pro Benefits',
+                        value: '• **Unlimited** learning items per server\n• **No advertisements**\n• **Priority support**\n• **Early access** to new features\n',
+                        inline: false
                     },
                     {
-                        name: '📝 Quick Start Guide',
-                        value: '1. **Invite me** to your Discord server\n2. Run `/setup-wizard` (admins only)\n3. Upload images to your learning channel\n4. I\'ll send you daily DM reminders!\n\nUse `/help` to see all commands~'
+                        name: '💰 Price',
+                        value: '₹399/month (cancel anytime)\n_~$5 USD - Less than a coffee per week!_',
+                        inline: false
                     },
                     {
-                        name: '💎 Upgrade to Pro?',
-                        value: '**Free tier:** 25 items per server\n**Pro tier:** Unlimited + ad-free!\n\nUse `/subscribe` in any server where I\'m invited!'
+                        name: '📝 Important',
+                        value: 'Please review the terms and refund policy below before proceeding~',
+                        inline: false
                     }
                 )
-                .setFooter({ text: 'Your devoted learning companion 🎀' });
+                .setFooter({ text: 'Scroll down to continue' });
 
+            // 2. Terms & Conditions Embed
+            const termsEmbed = new EmbedBuilder()
+                .setColor('#3B82F6') // Blue
+                .setTitle('📋 Terms & Conditions')
+                .setDescription('**Please read carefully, Master~**')
+                .addFields(
+                    {
+                        name: '1️⃣ Subscription Service',
+                        value: '• Billed monthly at ₹399\n• Auto-renews each month\n• Cancel anytime (no future charges)',
+                        inline: false
+                    },
+                    {
+                        name: '2️⃣ Usage Rights',
+                        value: '• Pro features work across all servers\n• Personal use only\n• Subject to Discord ToS',
+                        inline: false
+                    },
+                    {
+                        name: '3️⃣ Payment Processing',
+                        value: '• Secure via Razorpay\n• We don\'t store payment info\n• Billing managed by Razorpay',
+                        inline: false
+                    },
+                    {
+                        name: '4️⃣ Fair Use',
+                        value: '• No abuse of unlimited items\n• No spam or automated uploads\n• We reserve right to suspend abuse',
+                        inline: false
+                    }
+                )
+                .setFooter({ text: 'Full terms at TERMS_OF_SERVICE.md' });
+
+            // 3. Refund Policy Embed
+            const refundEmbed = new EmbedBuilder()
+                .setColor('#EF4444') // Red
+                .setTitle('🚫 Refund Policy – Please Read')
+                .setDescription('**All subscription payments are NON-REFUNDABLE.**')
+                .addFields(
+                    {
+                        name: '❓ Why no refunds?',
+                        value: '• Free tier available to try first\n• Digital service with instant access\n• Monthly billing (low commitment)\n• Standard for SaaS products',
+                        inline: false
+                    },
+                    {
+                        name: '✅ What you CAN do:',
+                        value: '• **Cancel anytime** (no future charges)\n• Keep Pro until billing period ends\n• Re-subscribe later if desired\n• Contact support for technical issues',
+                        inline: false
+                    },
+                    {
+                        name: '⚠️ Important',
+                        value: 'By proceeding, you acknowledge:\n• This is a monthly subscription\n• Payments are non-refundable\n• You accept the terms above',
+                        inline: false
+                    }
+                )
+                .setFooter({ text: 'Support: Snugtojo@gmail.com' });
+
+            // 4. Confirmation Embed
+            const confirmEmbed = new EmbedBuilder()
+                .setColor('#10B981') // Green
+                .setTitle('✅ Ready to Upgrade, Master~?')
+                .setDescription('**By clicking "I Accept", you agree to:**\n• Terms & Conditions stated above\n• No-refund policy\n• Monthly billing of ₹399\n\n_This agreement becomes binding upon payment completion_\nTake your time to review everything~');
+
+
+            // Action Buttons
             const row = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setLabel('Invite to Server')
-                        .setURL(`https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&permissions=274878294080&scope=bot%20applications.commands`)
-                        .setStyle(ButtonStyle.Link),
+                        .setCustomId('subscribe_accept')
+                        .setLabel('I Accept – Proceed to Payment')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('✅'),
                     new ButtonBuilder()
-                        .setLabel('Support Server')
-                        .setURL('https://discord.gg/MNZ7hNbDFd')
-                        .setStyle(ButtonStyle.Link)
+                        .setCustomId('subscribe_decline')
+                        .setLabel('Cancel')
+                        .setStyle(ButtonStyle.Danger)
+                        .setEmoji('✖️')
                 );
 
-            await message.reply({ embeds: [embed], components: [row] });
+            await message.reply({
+                content: '',
+                embeds: [upgradeEmbed, termsEmbed, refundEmbed, confirmEmbed],
+                components: [row]
+            });
         }
 
     } catch (error) {

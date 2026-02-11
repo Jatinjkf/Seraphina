@@ -30,8 +30,10 @@ router.get('/', requireAuth, async (req, res) => {
 router.post('/grant-pro', requireAuth, async (req, res) => {
     try {
         const { userId, duration } = req.body;
+        console.log(`[API] Manual Grant Pro Request: User=${userId}, Duration=${duration}`);
 
         if (!userId || !duration) {
+            console.warn('[API] Grant Pro failed: Missing userId or duration');
             return res.status(400).json({ error: 'User ID and duration required' });
         }
 
@@ -41,37 +43,58 @@ router.post('/grant-pro', requireAuth, async (req, res) => {
             expirationDate = new Date('2099-12-31');
         } else {
             const months = parseInt(duration);
+            if (isNaN(months)) {
+                return res.status(400).json({ error: 'Invalid duration' });
+            }
             expirationDate = new Date();
             expirationDate.setMonth(expirationDate.getMonth() + months);
         }
 
-        // Create or update subscription
+        console.log(`[API] Calculated Expiration: ${expirationDate.toISOString()}`);
+
+        // Update Subscription
+        // Note: Using upsert to create if not exists
         const subscription = await Subscription.findOneAndUpdate(
             { userId },
             {
-                userId,
-                tier: 'pro',
-                status: 'active',
-                currentPeriodEnd: expirationDate,
-                razorpaySubscriptionId: `MANUAL_${Date.now()}`,
-                grantedBy: 'admin',
-                grantMethod: 'manual',
-                updatedAt: new Date()
+                $set: {
+                    userId,
+                    tier: 'pro',
+                    status: 'active',
+                    currentPeriodEnd: expirationDate,
+                    razorpaySubscriptionId: `MANUAL_${Date.now()}`,
+                    grantedBy: 'admin', // You might want to pull this from req.user if available
+                    grantMethod: 'manual',
+                    updatedAt: new Date()
+                }
             },
-            { upsert: true, new: true }
+            { upsert: true, new: true, runValidators: true }
         );
 
-        // Send DM to user via Discord client
+        console.log(`[API] Subscription Updated: ${subscription._id}, Tier=${subscription.tier}`);
+
+        // Send DM to user via Discord client logic
+        // We rely on the app.get('discordClient') which must be set in server.js
         try {
             const client = req.app.get('discordClient');
             if (client) {
-                const user = await client.users.fetch(userId);
-                const dmChannel = await user.createDM();
+                console.log('[API] Attempting to send DM via Discord Client...');
+                const user = await client.users.fetch(userId).catch(() => null);
 
-                await dmChannel.send(`🎉 **Congratulations, Master~**\n\nYou've been granted **Pro subscription** ${duration === 'lifetime' ? 'for **LIFETIME**' : `for **${duration} month(s)**`}!\n\n✨ **Pro Benefits Unlocked:**\n• Unlimited learning items per server\n• Ad-free experience\n• Priority support\n• Early access to new features\n\n💫 Use \`/help\` to see all commands!\n\nThank you for being amazing! 🎀\n- Seraphina Lumière`);
+                if (user) {
+                    await user.send({
+                        content: `🎉 **Congratulations, Master~**\n\nYou've been granted **Pro subscription** ${duration === 'lifetime' ? 'for **LIFETIME**' : `for **${duration} month(s)**`}!\n\n✨ **Pro Benefits Unlocked:**\n• Unlimited learning items per server\n• Ad-free experience\n• Priority support\n• Early access to new features\n\n💫 Use \`/help\` to see all commands!\n\nThank you for being amazing! 🎀`
+                    });
+                    console.log(`[API] DM sent to ${user.tag}`);
+                } else {
+                    console.warn(`[API] User ${userId} not found in cache/fetch.`);
+                }
+            } else {
+                console.warn('[API] Discord client not found on app object.');
             }
         } catch (dmError) {
-            console.error('Could not send DM:', dmError);
+            console.error('[API] Could not send DM:', dmError);
+            // We don't fail the request if DM fails, just log it
         }
 
         res.json({
@@ -81,8 +104,8 @@ router.post('/grant-pro', requireAuth, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Grant Pro error:', error);
-        res.status(500).json({ error: 'Failed to grant subscription' });
+        console.error('[API] Grant Pro error:', error);
+        res.status(500).json({ error: 'Failed to grant subscription', details: error.message });
     }
 });
 

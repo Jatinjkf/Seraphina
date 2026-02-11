@@ -30,14 +30,21 @@ function parseImageMessage(content) {
  */
 async function isLearningChannel(channel, userId) {
     const UserPreferences = require('../models/UserPreferences');
+    const GuildSettings = require('../models/GuildSettings');
 
+    // 1. Check Personal Preference
     const prefs = await UserPreferences.findOne({ userId });
-
-    if (!prefs || !prefs.learningChannelId) {
-        return false;
+    if (prefs && prefs.learningChannelId) {
+        return channel.id === prefs.learningChannelId;
     }
 
-    return channel.id === prefs.learningChannelId;
+    // 2. Check Server Default (from Setup Wizard)
+    const guildSettings = await GuildSettings.findOne({ guildId: channel.guild.id });
+    if (guildSettings && guildSettings.learningChannelId) {
+        return channel.id === guildSettings.learningChannelId;
+    }
+
+    return false;
 }
 
 /**
@@ -171,13 +178,14 @@ async function updateLedger(channel, userId) {
 
     // Build ledger message
     const maidName = await getMaidName();
+    let ledgerText = ''; // Define ledgerText variable
 
     let menu = '```\n';
     menu += '╔═══════════════════════════════════════════╗\n';
     menu += '║    🎀 SERAPHINA\'S SERVICE MENU 🎀         ║\n';
 
     if (isPartnership) {
-        // Get both user names and truncate to fit
+        // Get both user names
         const userIds = await getUserAndPartner(userId, channel.guild.id);
         const users = await Promise.all(
             userIds.map(id => channel.client.users.fetch(id).catch(() => null))
@@ -186,21 +194,28 @@ async function updateLedger(channel, userId) {
         const name1 = users[0] ? users[0].username.substring(0, 10) : 'User';
         const name2 = users[1] ? users[1].username.substring(0, 10) : 'Partner';
 
-        const partnershipText = `${name1} & ${name2}`;
+        // Emoji legend
+        const { getPartnershipEmoji } = require('./partnershipEmojiUtils');
+        const emoji1 = await getPartnershipEmoji(userIds[0], channel.guild.id) || '•';
+        const emoji2 = await getPartnershipEmoji(userIds[1], channel.guild.id) || '•';
+
+        // Single compact header line for partners
+        // Format: "👥 name1 (emoji) & name2 (emoji)"
+        const partnershipText = `${emoji1} ${name1} & ${emoji2} ${name2}`;
         const paddedText = partnershipText.length > 37
             ? partnershipText.substring(0, 34) + '...'
             : partnershipText.padEnd(37, ' ');
 
-        menu += '║                                           ║\n';
         menu += `║  👥 ${paddedText}  ║\n`;
-
-        // Add emoji legend
-        const { getPartnershipEmoji } = require('./partnershipEmojiUtils');
-        const emoji1 = await getPartnershipEmoji(userIds[0], channel.guild.id) || '•';
-        const emoji2 = await getPartnershipEmoji(userIds[1], channel.guild.id) || '•';
-        const legend = `${emoji1} ${name1} | ${emoji2} ${name2}`;
-        const paddedLegend = legend.padEnd(37, ' ');
-        menu += `║     ${paddedLegend}  ║\n`;
+    } else {
+        // Single user header
+        const user = await channel.client.users.fetch(userId).catch(() => null);
+        const username = user ? user.username : 'User';
+        const headerText = `👤 ${username}'s List`;
+        const paddedHeader = headerText.length > 37
+            ? headerText.substring(0, 34) + '...'
+            : headerText.padEnd(37, ' ');
+        menu += `║  ${paddedHeader}  ║\n`;
     }
 
     menu += '╠═══════════════════════════════════════════╣\n';
@@ -209,7 +224,7 @@ async function updateLedger(channel, userId) {
     // Frequency titles and icons
     const frequencyConfig = {
         daily: { icon: '📌', title: 'DAILY' },
-        every2days: { icon: '📍', title: 'EVERY 3 DAYS' },
+        every2days: { icon: '📍', title: 'EVERY 2 DAYS' }, // Fixed typo in title
         every3days: { icon: '📅', title: 'EVERY 3 DAYS' },
         weekly: { icon: '📆', title: 'WEEKLY' },
         biweekly: { icon: '🗓️', title: 'BI-WEEKLY' },
@@ -234,37 +249,49 @@ async function updateLedger(channel, userId) {
                 const prefix = isLast ? '└─' : '├─';
 
                 // Format: "├─ name...........date"
-                // NO emoji in channel ledger (shared view, no personal context)
-                const maxNameLength = 28;
+                const maxNameLength = 25; // Adjusted for fixed width
                 let itemText = item.name;
                 if (itemText.length > maxNameLength) {
-                    itemText = itemText.substring(0, maxNameLength - 3) + '...';
+                    itemText = itemText.substring(0, maxNameLength - 1) + '…';
                 }
 
-                const dots = '.'.repeat(Math.max(1, maxNameLength - itemText.length));
-                const line = `  ${prefix} ${itemText}${dots}${item.next}`;
+                // Calculate dots to align date to right
+                // Total inner width = 43 chars
+                // "  " (2) + prefix (2) + " " (1) + itemText + dots + date
+                const dateLen = item.next.length;
+                const usedLen = 5 + itemText.length + dateLen;
+                const availableDots = 41 - usedLen; // 43 - 2 border = 41 inner width? No, 43 is total with spaces.
+                // Line breakdown:
+                // ║ (1) + space (1) + prefix (2) + space (1) + name (N) + dots (D) + date (M) + space (1) + ║ (1)
+                // Total content width = 41
+                // 2 + 1 + N + D + M = 41
+                // D = 38 - N - M
 
-                menu += `║${line.padEnd(43, ' ')}║\n`;
+                const dotsCount = Math.max(1, 38 - itemText.length - dateLen);
+                const dots = '.'.repeat(dotsCount);
+
+                const lineContent = `${prefix} ${itemText}${dots}${item.next}`;
+                menu += `║  ${lineContent.padEnd(39, ' ')}║\n`; // Pad to 39 chars + 2 spaces = 41
             }
 
             menu += '║                                           ║\n';
         }
     }
 
-    // Footer with random motivational quote (full quote, no truncation)
+    // Footer with random motivational quote
     const { responses } = require('./personality');
     const randomQuote = responses.ledgerQuotes[Math.floor(Math.random() * responses.ledgerQuotes.length)];
 
     menu += '╠═══════════════════════════════════════════╣\n';
 
-    // Word wrap the quote to fit width (43 chars per line)
-    const quoteWidth = 41; // Account for "║ " prefix and " ║" suffix
+    // Word wrap the quote
+    const quoteWidth = 41;
     const words = randomQuote.split(' ');
     let currentLine = '';
     const quoteLines = [];
 
     for (const word of words) {
-        if ((currentLine + word).length <= quoteWidth) {
+        if ((currentLine + word).length + (currentLine ? 1 : 0) <= quoteWidth) {
             currentLine += (currentLine ? ' ' : '') + word;
         } else {
             if (currentLine) quoteLines.push(currentLine);
@@ -273,17 +300,22 @@ async function updateLedger(channel, userId) {
     }
     if (currentLine) quoteLines.push(currentLine);
 
-    // Add quote lines to menu
+    // Add quote lines to menu - Centered text
     for (const line of quoteLines) {
-        menu += `║ ${line.padEnd(quoteWidth, ' ')} ║\n`;
+        // Center alignment logic: (Width - Length) / 2
+        const paddingLeft = Math.floor((quoteWidth - line.length) / 2);
+        const paddingRight = quoteWidth - line.length - paddingLeft;
+        menu += `║ ${' '.repeat(paddingLeft)}${line}${' '.repeat(paddingRight)} ║\n`;
     }
 
     menu += '╚═══════════════════════════════════════════╝\n';
     menu += '```';
 
+    ledgerText = menu; // Assign menu to ledgerText
+
     if (isPartnership) {
         // Add partnership legend outside the code block
-        ledgerText += '\n\n*👥 = Partner\'s item*';
+        ledgerText += '\n*👥 Team Learning Active*';
     }
 
     // Check if primary user is Pro subscriber (AFTER quote, for solo learning)
