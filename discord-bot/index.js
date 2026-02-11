@@ -92,6 +92,52 @@ client.once('ready', async () => {
     console.log(`  Logged in as: ${client.user.tag}`);
     console.log(`  Serving ${client.guilds.cache.size} server(s)`);
 
+    // Sync existing guilds to GuildStats on startup
+    try {
+        const GuildStats = require('./models/GuildStats');
+        let synced = 0;
+        for (const [guildId, guild] of client.guilds.cache) {
+            const existing = await GuildStats.findOne({ guildId });
+            if (!existing) {
+                let ownerTag = 'Unknown';
+                try {
+                    const owner = await client.users.fetch(guild.ownerId);
+                    ownerTag = owner.tag || owner.username;
+                } catch (e) { }
+
+                await GuildStats.create({
+                    guildId: guild.id,
+                    guildName: guild.name,
+                    memberCount: guild.memberCount,
+                    joinedAt: guild.joinedAt || new Date(),
+                    isActive: true,
+                    ownerId: guild.ownerId,
+                    ownerTag,
+                    lastActivity: new Date(),
+                });
+                synced++;
+            } else {
+                // Update member count and name for existing records
+                await GuildStats.updateOne(
+                    { guildId },
+                    {
+                        $set: {
+                            guildName: guild.name,
+                            memberCount: guild.memberCount,
+                            isActive: true,
+                        }
+                    }
+                );
+            }
+        }
+        if (synced > 0) {
+            console.log(`✓ Synced ${synced} existing guild(s) to stats`);
+        }
+        console.log(`✓ Guild stats up to date (${client.guilds.cache.size} servers tracked)`);
+    } catch (error) {
+        console.error('Error syncing guild stats:', error);
+    }
+
     // Rotating status messages
     const statusMessages = [
         '🎀 Organizing Master\'s ledger~',

@@ -4,10 +4,10 @@ const Subscription = require('../../discord-bot/models/Subscription');
 const { requireAuth } = require('../middleware/auth');
 
 /**
- * GET /api/admin/subscriptions
+ * GET /api/subscriptions
  * Get all subscriptions
  */
-router.get('/subscriptions', requireAuth, async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
     try {
         const subscriptions = await Subscription.find()
             .sort({ updatedAt: -1 })
@@ -24,10 +24,10 @@ router.get('/subscriptions', requireAuth, async (req, res) => {
 });
 
 /**
- * POST /api/admin/subscriptions/grant
+ * POST /api/subscriptions/grant-pro
  * Manually grant Pro subscription
  */
-router.post('/subscriptions/grant', requireAuth, async (req, res) => {
+router.post('/grant-pro', requireAuth, async (req, res) => {
     try {
         const { userId, duration } = req.body;
 
@@ -67,7 +67,7 @@ router.post('/subscriptions/grant', requireAuth, async (req, res) => {
             if (client) {
                 const user = await client.users.fetch(userId);
                 const dmChannel = await user.createDM();
-                
+
                 await dmChannel.send(`🎉 **Congratulations, Master~**\n\nYou've been granted **Pro subscription** ${duration === 'lifetime' ? 'for **LIFETIME**' : `for **${duration} month(s)**`}!\n\n✨ **Pro Benefits Unlocked:**\n• Unlimited learning items per server\n• Ad-free experience\n• Priority support\n• Early access to new features\n\n💫 Use \`/help\` to see all commands!\n\nThank you for being amazing! 🎀\n- Seraphina Lumière`);
             }
         } catch (dmError) {
@@ -87,10 +87,10 @@ router.post('/subscriptions/grant', requireAuth, async (req, res) => {
 });
 
 /**
- * POST /api/admin/subscriptions/revoke
+ * POST /api/subscriptions/revoke-pro
  * Manually revoke Pro subscription
  */
-router.post('/subscriptions/revoke', requireAuth, async (req, res) => {
+router.post('/revoke-pro', requireAuth, async (req, res) => {
     try {
         const { userId } = req.body;
 
@@ -116,7 +116,7 @@ router.post('/subscriptions/revoke', requireAuth, async (req, res) => {
             if (client) {
                 const user = await client.users.fetch(userId);
                 const dmChannel = await user.createDM();
-                
+
                 await dmChannel.send(`📢 **Pro Subscription Update**\n\nYour Pro subscription has ended, Master~\n\nYou've been downgraded to **Free tier**:\n• 25 learning items per server\n• All core features still available\n\n💎 Want Pro back? Use \`/subscribe\` anytime!\n\n- Seraphina Lumière 🎀`);
             }
         } catch (dmError) {
